@@ -42,6 +42,12 @@ public class GameUIController : MonoBehaviour {
         LivesText.text = "Core HP: " + GameController.Instance.GameInstance.HomeBaseHP;
         MoneyText.text = "Credits: " + GameController.Instance.GameInstance.Credits;
         EnemiesText.text =  "Enemies: " + GameController.Instance.GameInstance.EnemiesLeftInCurrentWave;
+        int curWaveSet = GameController.Instance.GameInstance.CurrentWaveSet;
+        if (GameController.Instance.GameOver)
+        {
+            curWaveSet = GameController.Instance.GameInstance.TotalWaveSets;
+        }
+        WaveText.text = "Wave: " + curWaveSet + "/" + GameController.Instance.GameInstance.TotalWaveSets;
     }
 
 }

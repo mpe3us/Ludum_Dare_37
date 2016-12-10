@@ -16,8 +16,11 @@ public class EnemyController : MonoBehaviour {
 
     private bool goingTowardsFinalPoint;
 
+    private bool isDead;
+
     void Awake()
     {
+        this.isDead = false;
         dataSet = false;
         this.nextWayPointIndex = 0;
         this.goingTowardsFinalPoint = false;
@@ -43,13 +46,15 @@ public class EnemyController : MonoBehaviour {
 
     void Update()
     {
-        if (!this.dataSet)
+        if (!this.dataSet || this.isDead)
         {
             return;
         }
 
+        float deltaTime = GameController.GlobalSpeedFactor * Time.deltaTime;
+
         Vector3 direction = this.nextWayPoint.transform.position - this.transform.position;
-        float distThisFrame = this.EnemyData.MovementSpeed * Time.deltaTime;
+        float distThisFrame = this.EnemyData.MovementSpeed * deltaTime;
 
         if (direction.magnitude <= distThisFrame)
         {
@@ -104,6 +109,7 @@ public class EnemyController : MonoBehaviour {
 
     private void DestroyMe()
     {
+        this.isDead = true;
         this.transform.GetChild(0).gameObject.SetActive(false);
         Destroy(this.gameObject, 5f);
     }

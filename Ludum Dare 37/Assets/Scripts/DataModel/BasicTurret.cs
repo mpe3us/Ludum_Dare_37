@@ -9,7 +9,7 @@ public class BasicTurret : Turret {
         this.Name = "Basic Turret";
         this.Description = "The weakest and cheapest turret that fires single standard projectiles.";
 
-        this.Price = 100;
+        this.Price = 75;
         this.Damage = 1f;
         this.Range = 5f;
         this.RateOfFire = 2f;

@@ -46,10 +46,12 @@ public class ProjectileController : MonoBehaviour {
             this.DestroyMe();
         }
 
+        float deltaTime = GameController.GlobalSpeedFactor * Time.deltaTime;
+
         Vector3 enemyPos = new Vector3(this.targetGO.transform.position.x, firePoint.transform.position.y, this.targetGO.transform.position.z);
         Vector3 direction = enemyPos - this.transform.position;
 
-        float distThisFrame = this.TurretData.ProjectileSpeed * Time.deltaTime;
+        float distThisFrame = this.TurretData.ProjectileSpeed * deltaTime;
 
         this.objectInFront = Physics.Raycast(this.transform.position, direction, out this.rayHit, distThisFrame, this.EnemyLayerMask);
 

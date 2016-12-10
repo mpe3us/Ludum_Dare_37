@@ -6,6 +6,8 @@ public class GameController : MonoBehaviour {
 
     public static GameController Instance;
 
+    public static float GlobalSpeedFactor = 1f;
+
     [SerializeField]
     public GameObject HomeBase;
 
@@ -23,17 +25,36 @@ public class GameController : MonoBehaviour {
 
     private float currentWaveDelay;
 
+    private List<Wave[]> waveSets;
+
+    public bool GameOver { get; private set; }
+
     // Use this for initialization
     void Awake () {
         Instance = this;
 
-        this.GameInstance = new Game(150, 10);
+        this.GameInstance = new Game(140, 10);
         this.currentWaveDelay = Game.TimeBetweenWaveSets;
 
         this.currentTurrets = new Dictionary<int, GameObject>();
 
         this.currentTurretToBuy = Turret.TurretTypes.BASIC;
+
+        this.GameOver = false;
+
+        this.CreateWaveSets();
 	}
+
+    private void CreateWaveSets()
+    {
+        this.waveSets = new List<Wave[]>();
+
+        this.waveSets.Add(Waves.FirstSet);
+        this.waveSets.Add(Waves.SecondSet);
+        this.waveSets.Add(Waves.ThirdSet);
+
+        this.GameInstance.TotalWaveSets = this.waveSets.Count;
+    }
 
     public void BuyTurretAt(GameObject turretBase)
     {
@@ -85,7 +106,11 @@ public class GameController : MonoBehaviour {
 
     public void EnemyReachedCore(Enemy enemyData)
     {
-        this.GameInstance.EnemyReachedCore(enemyData);
+        bool gameIsOver = this.GameInstance.EnemyReachedCore(enemyData);
+        if (gameIsOver)
+        {
+            this.SetGameOver(false);
+        }
     }
 
     public void ChangeTurretBaseColor(GameObject turretBase)
@@ -95,23 +120,72 @@ public class GameController : MonoBehaviour {
         ren.material.color = new Color(curColor.r, curColor.g, curColor.b, 1.0f);
     }
 
+    private void ChangeSpeedFactor()
+    {
+        if (Input.GetKeyDown("space"))
+        {
+            GlobalSpeedFactor = 10f;
+        }
+        else if (Input.GetKeyUp("space"))
+        {
+            GlobalSpeedFactor = 1f;
+        }
+    }
+
     void Update()
     {
 
-        if (this.GameInstance.EnemiesLeftInCurrentWave <= 0)
+        this.ChangeSpeedFactor();
+
+        if (this.GameInstance.EnemiesLeftInCurrentWave <= 0 && !this.GameOver)
         {
             this.currentWaveDelay -= Time.deltaTime;
 
             if (this.currentWaveDelay <= 0f)
             {
-                // Spawn waves
-                SpawnersController.Instance.Spawn(Waves.FirstSet);
+                Wave[] curWaveSet = this.waveSets[this.GameInstance.CurrentWaveSet - 1];
 
-                this.GameInstance.EnemiesLeftInCurrentWave = 9;
-                this.currentWaveDelay = Game.TimeBetweenWaveSets;
+                // Spawn waves
+                SpawnersController.Instance.Spawn(curWaveSet);
+
+                this.GameInstance.EnemiesLeftInCurrentWave = GetEnemiesInWaveSet(curWaveSet);
+                this.currentWaveDelay = Game.TimeBetweenWaveSets;                            
+            
             }
         }
 
+        if (this.GameInstance.CurrentWaveSet > this.GameInstance.TotalWaveSets)
+        {
+            //Debug.Log(this.GameInstance.CurrentWaveSet);
+            //Debug.Log(this.GameInstance.TotalWaveSets);
+            this.SetGameOver(true);
+        }
+    }
+
+    public static int GetEnemiesInWaveSet(Wave[] waveSet)
+    {
+        int count = 0;
+
+        foreach (Wave w in waveSet)
+        {
+            foreach(Wave.WaveElement we in w.waveElems)
+            {
+                count += we.quantity;
+            }
+        }
+
+        return count;
+    }
+
+    private void SetGameOver(bool gameWon)
+    {
+        if (this.GameOver)
+        {
+            return;
+        }
+
+        this.GameOver = true;
+        Debug.Log("Game Over!");
     }
 
 }

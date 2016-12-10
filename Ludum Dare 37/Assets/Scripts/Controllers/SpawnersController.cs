@@ -22,7 +22,7 @@ public class SpawnersController : MonoBehaviour {
         // Add waves to the spawners
         foreach (Wave w in wavesToSpawn)
         {
-            Spawner curSpawner = this.Spawners[0];
+            Spawner curSpawner = this.Spawners[Random.Range(0, this.Spawners.Length)];
             curSpawner.AddWave(w);
         }
 

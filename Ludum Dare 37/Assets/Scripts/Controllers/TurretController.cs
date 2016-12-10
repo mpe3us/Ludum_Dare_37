@@ -46,7 +46,9 @@ public class TurretController : MonoBehaviour {
             return;
         }
 
-        this.curFireCD -= Time.deltaTime;
+        float deltaTime = GameController.GlobalSpeedFactor * Time.deltaTime;
+
+        this.curFireCD -= deltaTime;
 
         if (this.currentTarget == null)
         {
@@ -65,7 +67,7 @@ public class TurretController : MonoBehaviour {
         {
             orgRot += 360.0f;
         }
-        this.transform.rotation = Quaternion.Euler(0, Mathf.SmoothStep(orgRot, newRot, Time.deltaTime * 10f), 0);
+        this.transform.rotation = Quaternion.Euler(0, Mathf.SmoothStep(orgRot, newRot, deltaTime * 10f), 0);
 
         float diff = Mathf.Abs(orgRot - newRot);
 
