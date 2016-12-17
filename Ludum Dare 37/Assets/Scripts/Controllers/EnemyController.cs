@@ -18,12 +18,22 @@ public class EnemyController : MonoBehaviour {
 
     private bool isDead;
 
+    private int turretBaseLayer;
+
+    private bool sendLastPulse;
+    private bool lastPulseSend;
+
     void Awake()
     {
         this.isDead = false;
         dataSet = false;
         this.nextWayPointIndex = 0;
         this.goingTowardsFinalPoint = false;
+
+        this.sendLastPulse = false;
+        this.lastPulseSend = false;
+
+        this.turretBaseLayer = 1 << 8;
     }
 
     public void SetEnemyData(Enemy data, Spawner spawnerData)
@@ -50,7 +60,7 @@ public class EnemyController : MonoBehaviour {
         {
             return;
         }
-
+        
         float deltaTime = GameController.GlobalSpeedFactor * Time.deltaTime;
 
         Vector3 direction = this.nextWayPoint.transform.position - this.transform.position;
@@ -64,10 +74,33 @@ public class EnemyController : MonoBehaviour {
         else {
             // Move towards target
             this.transform.Translate(direction.normalized * distThisFrame, Space.World);
-        }
-        
+        }     
     }
 
+    void FixedUpdate()
+    {
+        if (!lastPulseSend)
+        {
+            this.ColorPulse();
+            if (this.sendLastPulse)
+            {
+                lastPulseSend = true;
+            }
+        }
+    }
+
+    private void ColorPulse()
+    {
+
+        Collider[] hitColliders = Physics.OverlapSphere(this.transform.position, MapController.ChangeColorDistThreshold, this.turretBaseLayer);
+
+        // Color effect
+        foreach (Collider col in hitColliders)
+        {
+            MapController.Instance.ChangeColorOfTurretBase(col, this, Vector3.Distance(col.transform.position, this.transform.position), this.isDead);
+        }
+    }
+    
     private void SetNextWayPoint()
     {
         int numWaypoints = spawnerData.WayPoints.Length;
@@ -109,6 +142,7 @@ public class EnemyController : MonoBehaviour {
 
     private void DestroyMe()
     {
+        this.sendLastPulse = true;
         this.isDead = true;
         this.transform.GetChild(0).gameObject.SetActive(false);
         Destroy(this.gameObject, 5f);

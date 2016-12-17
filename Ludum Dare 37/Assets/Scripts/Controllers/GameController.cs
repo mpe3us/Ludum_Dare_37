@@ -52,8 +52,21 @@ public class GameController : MonoBehaviour {
         this.waveSets.Add(Waves.FirstSet);
         this.waveSets.Add(Waves.SecondSet);
         this.waveSets.Add(Waves.ThirdSet);
+        this.waveSets.Add(Waves.Set4);
+        this.waveSets.Add(Waves.Set5);
+        this.waveSets.Add(Waves.Set6);
+        this.waveSets.Add(Waves.Set7);
+        this.waveSets.Add(Waves.Set8);
+        this.waveSets.Add(Waves.Set9);
+        this.waveSets.Add(Waves.Set10);
 
         this.GameInstance.TotalWaveSets = this.waveSets.Count;
+    }
+
+    public void SetTurretToBuy(GameObject buyTurretButtonGO)
+    {
+        this.currentTurretToBuy = buyTurretButtonGO.GetComponent<BuyTurretButton>().TurretData.TurretType;
+        GameUIController.Instance.ChangePositionOfSelectionIndicator(buyTurretButtonGO);
     }
 
     public void BuyTurretAt(GameObject turretBase)
@@ -64,6 +77,12 @@ public class GameController : MonoBehaviour {
         {
             case Turret.TurretTypes.BASIC:
                 curTurret = new BasicTurret();
+                break;
+            case Turret.TurretTypes.SNIPER:
+                curTurret = new SniperTurret();
+                break;  
+            case Turret.TurretTypes.ROCKET:
+                curTurret = new RocketTurret();
                 break;
             default:
                 Debug.Log("Unsupported turret type");
@@ -92,6 +111,9 @@ public class GameController : MonoBehaviour {
 
             // Update credits
             this.GameInstance.BuyTurret(curTurret);
+
+            // Play sound
+            SoundController.Instance.OnTurretPlaced();
         }   
         else
         {
@@ -102,6 +124,7 @@ public class GameController : MonoBehaviour {
     public void EnemyDestroyed(Enemy enemyData)
     {
         this.GameInstance.EnemyDied(enemyData);
+        SoundController.Instance.OnEnemyDead();
     }
 
     public void EnemyReachedCore(Enemy enemyData)
@@ -111,6 +134,8 @@ public class GameController : MonoBehaviour {
         {
             this.SetGameOver(false);
         }
+
+        SoundController.Instance.OnCoreDamaged();
     }
 
     public void ChangeTurretBaseColor(GameObject turretBase)
@@ -139,10 +164,15 @@ public class GameController : MonoBehaviour {
 
         if (this.GameInstance.EnemiesLeftInCurrentWave <= 0 && !this.GameOver)
         {
-            this.currentWaveDelay -= Time.deltaTime;
+            float deltaTime = Time.deltaTime * GlobalSpeedFactor;
+            this.currentWaveDelay -= deltaTime;
+
+            GameUIController.Instance.UpdateTimeToNextWave(this.currentWaveDelay);
 
             if (this.currentWaveDelay <= 0f)
             {
+                GameUIController.Instance.ResetTimeToNextWave();
+
                 Wave[] curWaveSet = this.waveSets[this.GameInstance.CurrentWaveSet - 1];
 
                 // Spawn waves
@@ -184,8 +214,11 @@ public class GameController : MonoBehaviour {
             return;
         }
 
+        SoundController.Instance.OnGameOver();
+        GameUIController.Instance.OnGameOver(gameWon);
+
         this.GameOver = true;
-        Debug.Log("Game Over!");
+        //Debug.Log("Game Over!");
     }
 
 }

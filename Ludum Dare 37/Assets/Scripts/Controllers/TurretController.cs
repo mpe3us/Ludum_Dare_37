@@ -15,6 +15,15 @@ public class TurretController : MonoBehaviour {
     [SerializeField]
     private GameObject FirePoint;
 
+    [SerializeField]
+    public GameObject HitEffect;
+
+    [SerializeField]
+    public AudioClip FireSFX;
+
+    [SerializeField]
+    public AudioClip HitSFX;
+
     private bool dataSet;
 
     private GameObject currentTarget;
@@ -76,9 +85,12 @@ public class TurretController : MonoBehaviour {
             // Fire projectile
             GameObject curProjectile = Instantiate(this.ProjectilePrefab, this.FirePoint.transform.position, Quaternion.identity);
             curProjectile.transform.SetParent(this.transform, true);
-            curProjectile.GetComponent<ProjectileController>().SetProjectileData(this.TurretData, this.currentTarget, this.FirePoint);
+            curProjectile.GetComponent<ProjectileController>().SetProjectileData(this, this.currentTarget, this.FirePoint);
 
             this.curFireCD = this.TurretData.RateOfFire;
+
+            // Play SFX
+            SoundController.Instance.PlaySFX(this.FireSFX);
         }
 
     }

@@ -12,6 +12,8 @@ public class MouseController : MonoBehaviour {
 
     public GameObject MouseOverObject { get; private set; }
 
+    private int turretBaseLayer;
+
     // Enum which defines the different kinds of target modes which we can be in
     public enum TargetMode
     {
@@ -27,7 +29,9 @@ public class MouseController : MonoBehaviour {
         Instance = this;
 
         this.CurrentTargetMode = TargetMode.BUY;
-	}
+
+        this.turretBaseLayer = 8;
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -40,6 +44,7 @@ public class MouseController : MonoBehaviour {
         }
         else if (Physics.Raycast(this.mouseRay, out this.mouseRayHitInfo))
         {
+            this.HandleMouseExitObject();
             this.MouseOverObject = this.mouseRayHitInfo.transform.parent.gameObject;
             this.HandleMouseEnterObject();
         }
@@ -61,12 +66,36 @@ public class MouseController : MonoBehaviour {
 
     private void HandleMouseEnterObject()
     {
-        //Debug.Log(this.MouseOverObject.name);
+        if (this.MouseOverObject.layer == this.turretBaseLayer)
+        {
+            Material mat = this.MouseOverObject.GetComponentInChildren<Renderer>().material;
+            Color curColor = mat.color;
+            mat.color = new Color(curColor.r, curColor.g, curColor.b, 1.0f);
+        }
     }
 
     private void HandleMouseExitObject()
     {
+        if (this.MouseOverObject == null)
+        {
+            return;
+        }
 
+        if (this.MouseOverObject.layer == this.turretBaseLayer)
+        {
+            Material mat = this.MouseOverObject.GetComponentInChildren<Renderer>().material;
+            Color curColor = mat.color;
+            if (this.MouseOverObject.tag == "Empty")
+            {
+                mat.color = new Color(curColor.r, curColor.g, curColor.b, MapController.Instance.TurretBaseOrgColor.a);
+            }
+            else
+            {
+                mat.color = new Color(curColor.r, curColor.g, curColor.b, 1.0f);
+            }
+
+        }
+        this.MouseOverObject = null;
     }
 
     private void HandleLeftClickDown()
@@ -77,6 +106,11 @@ public class MouseController : MonoBehaviour {
 
     private void HandleLeftClickUp()
     {
+        if (this.MouseOverObject == null)
+        {
+            return;
+        }
+
         switch (this.CurrentTargetMode)
         {
             case TargetMode.NONE:

@@ -6,8 +6,8 @@ public class SpawnersController : MonoBehaviour {
 
     public static SpawnersController Instance;
 
-    public const float DelayBetweenEnemySpawn = 1.5f;
-    public const float DelayBetweenIndWaves = 3f;
+    public const float DelayBetweenEnemySpawn = 0.9f;
+    public const float DelayBetweenIndWaves = 1.2f;
 
     [SerializeField]
     public Spawner[] Spawners;

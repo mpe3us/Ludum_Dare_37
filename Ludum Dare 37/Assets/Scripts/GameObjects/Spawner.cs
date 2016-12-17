@@ -90,6 +90,8 @@ public class Spawner : MonoBehaviour {
         GameObject curEnemyGO = Instantiate(curPrefab, this.transform.position, Quaternion.identity);
         curEnemyGO.transform.SetParent(this.transform, true);
         curEnemyGO.GetComponent<EnemyController>().SetEnemyData(newEnemy, this);
+
+        SoundController.Instance.OnEnemySpawned();
     }
 
 }

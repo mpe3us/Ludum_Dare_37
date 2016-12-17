@@ -8,7 +8,9 @@ public abstract class Turret {
 
     public enum TurretTypes
     {
-        BASIC
+        BASIC,
+        SNIPER,
+        ROCKET
     }
 
     // Properties
@@ -27,6 +29,7 @@ public abstract class Turret {
     public float Range { get; set; }
     public float RateOfFire { get; set; } // Per second
     public float ProjectileSpeed { get; set; }
+    public float aoe_radius { get; set; }
 
     public Turret()
     {
